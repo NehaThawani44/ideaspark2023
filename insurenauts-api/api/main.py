@@ -1,14 +1,19 @@
+import typing
 import uvicorn
 from fastapi import FastAPI
+from typing import Union
+
 from api.models import (
+    ChapterNode,DoorNode,
     GeneratedQuestion,
     UserAnswer,
     RecommendationResult,
     EmailBody,
     InsurancePackage,
     CompletionResult,
+
 )
-from api.utils import get_all_insurance_packages, send_email, generate_email_content
+from api.utils import get_all_insurance_packages, send_email, generate_email_content , get_liability_insurance
 
 
 app = FastAPI()
@@ -29,11 +34,37 @@ async def list_all_insurance_packages() -> list[InsurancePackage]:
     return get_all_insurance_packages()
 
 
-@app.post("/answer", description="Process a user answer and generate next question.")
-async def process_answer_handler(user_answer: UserAnswer) -> GeneratedQuestion:
-    pass
 
 
+
+
+    return liability_chapter
+def get_next_chapter(question_id: str, user_answer: str) -> Union[ChapterNode, DoorNode]:
+   
+
+    # Example logic for chapter 1
+    if question_id == "1" and user_answer.lower() == "yes":
+        return get_liability_insurance()
+    else:
+        # Return a generic chapter for other cases
+        return ChapterNode(id="2", text="Another chapter", insurance="")
+
+
+
+
+@app.post("/answer", response_model=ChapterNode, description="Process a user answer and generate next chapter.")
+async def process_answer_handler(user_answer: UserAnswer) -> typing.Any:
+    next_chapter = get_next_chapter(user_answer.question_id, user_answer.message)
+
+    # Assuming next_chapter is an instance of ChapterNode
+    response = ChapterNode(
+        id=next_chapter.id,
+        text=next_chapter.text,
+        insurance=next_chapter.insurance,
+        options=[option.text for option in next_chapter.options]
+    )
+    return response
+    
 @app.get("/recommendations", description="Generate recommendations based on user id")
 async def generate_recommendations_handler(user_id: int) -> RecommendationResult:
     pass
@@ -56,4 +87,4 @@ async def complete_game(completion_result: CompletionResult) -> dict[str, str]:
 
 
 def run_app():
-    uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api.main:app", host="0.0.0.0", port=8001, reload=True)

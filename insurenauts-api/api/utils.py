@@ -1,7 +1,8 @@
-from api.models import EmailBody, InsurancePackage, CompletionResult
+from api.models import ChapterNode, DoorNode, EmailBody, EventNode, InsurancePackage, CompletionResult, Node
 from smtplib import SMTP_SSL
 from email.mime.text import MIMEText
 import os
+import typing
 
 
 def send_email(body: EmailBody) -> dict[str, str]:
@@ -94,3 +95,38 @@ Ihr InsureNauts Team
     )
 
     return email_message
+
+
+
+
+
+
+def get_liability_insurance() -> ChapterNode:
+    """Liability Cover"""
+    print("Inside UTILS")
+    liability_chapter = ChapterNode(
+        text="Text für das Haftpflichtkapitel",
+        options=[
+            Node(id="1", text="Geh zum Job"),
+            Node(id="2", text="Schlendere weiter")
+        ],
+        insurance="Liability Insurance"
+    )
+    liability_door1 = Node(text= "Wähle eine option")
+
+    liability_event_good= EventNode(insurance="Haftplicht",cost="5",text="""Deine  Fruend erzählt dir was von einem coolen
+neuen Job. Du bewirbst dich und wirst genommen.""")
+    liability_event_bad= EventNode(insurance="Haftplicht",cost="",text="""Der Ball zerstört das Fenster des Nachbarn ,leider hast du keine Versicherung musst für den schaden aufkommen""")
+
+    liability_event_good2= EventNode(insurance="Haftplicht",cost="5",text="""""")
+    # You might want to add the doors and events to the options if they are meant to be part of the story.
+    liability_chapter.options.extend([liability_door1, liability_event_good, liability_event_bad, liability_event_good2])
+
+    return liability_chapter
+
+
+
+
+
+
+   
